@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesanan Toko</title>
+    <link rel="stylesheet" href="cashier.css">
+</head>
+<body>
+    <h1>Pesanan Toko</h1>
+    <label for="barangSelect1">Pilih Barang 1:</label>
+    <select id="barangSelect1">
+        <option value="0">-- Pilih Barang --</option>
+    </select><br><br>
+
+    <button onclick="tambahBarang(1)">Tambah Barang 1</button><br><br>
+
+    <label for="barangSelect2">Pilih Barang 2:</label>
+    <select id="barangSelect2">
+        <option value="0">-- Pilih Barang --</option>
+    </select><br><br>
+
+    <button onclick="tambahBarang(2)">Tambah Barang 2</button><br><br>
+
+    <label for="jumlahItem">Jumlah Barang:</label>
+    <input type="number" id="jumlahItem" value="0"><br><br>
+
+    <h2>Daftar Barang yang Ditambahkan:</h2>
+    <ul id="daftarBarang"></ul>
+
+    <button onclick="hitungTotal()">Hitung Total</button><br><br>
+
+    <p>Total Harga Pesanan: <span id="totalHarga">Rp. 0</span></p>
+
+    <p id="pemberitahuan"></p>
+
+    <script>
+ 
+var daftarBarang = [
+    { kode: "001", nama: "Buku", harga: 5000, jenis: "Alat Tulis" },
+    { kode: "002", nama: "Pensil", harga: 1000, jenis: "Alat Tulis" },
+    { kode: "003", nama: "Pensil Warna", harga: 2000, jenis: "Alat Tulis" },
+    { kode: "004", nama: "Spidol", harga: 3000, jenis: "Alat Tulis" },
+    { kode: "005", nama: "Pensil Mekanik", harga: 4000, jenis: "Alat Tulis" },
+    { kode: "006", nama: "Pulpen", harga: 3000, jenis: "Alat Tulis"},
+    { kode: "007", nama: "Buku gambar", harga: 8000, jenis: "Alat Tulis"}
+];
+
+for (var i = 1; i <= 2; i++) {
+    var barangSelect = document.getElementById("barangSelect" + i);
+    for (var j = 0; j < daftarBarang.length; j++) {
+        var option = document.createElement("option");
+        option.value = daftarBarang[j].kode;
+        option.text = daftarBarang[j].nama + " - Rp. " + daftarBarang[j].harga.toLocaleString('id-ID') + "   (" + daftarBarang[j].jenis + ")";
+        barangSelect.appendChild(option);
+    }
+}
+
+var daftarBarangDitambahkan = [];
+
+function tambahBarang(barangIndex) {
+    var kodeBarang = document.getElementById("barangSelect" + barangIndex).value;
+    var jumlahBarang = parseInt(document.getElementById("jumlahItem").value);
+
+    if (kodeBarang !== "0" && jumlahBarang > 0) {
+        var barang = daftarBarang.find(function(item) {
+            return item.kode === kodeBarang;
+        });
+
+        if (barang) {
+            barang.jumlah = jumlahBarang;
+            daftarBarangDitambahkan.push(barang);
+
+            tampilkanDaftarBarang();
+        }
+    }
+}
+
+function tampilkanDaftarBarang() {
+    var daftarBarangElem = document.getElementById("daftarBarang");
+    daftarBarangElem.innerHTML = "";
+
+    daftarBarangDitambahkan.forEach(function(barang) {
+        var li = document.createElement("li");
+        li.textContent = barang.nama + " (Kode: " + barang.kode + ") - " + barang.jumlah + " pcs";
+        daftarBarangElem.appendChild(li);
+
+        var btnHapus = document.createElement("button");
+                btnHapus.textContent = "Hapus";
+                btnHapus.onclick = function() {
+                    daftarBarangDitambahkan.splice(index, 1);
+                    tampilkanDaftarBarang();
+                };
+
+                li.appendChild(btnHapus);
+                daftarBarangElem.appendChild(li);
+            });
+        }
+   
+function hitungTotal() {
+    var totalHarga = 0;
+
+    daftarBarangDitambahkan.forEach(function(barang) {
+        totalHarga += barang.harga * barang.jumlah;
+    });
+
+    var diskon = 0;
+    switch(true) {
+        case (totalHarga >= 10000 && totalHarga < 20000):
+            diskon = 0.05 * totalHarga; // Diskon 5% untuk total harga antara 1000 - 1999
+            break;
+        case (totalHarga >= 20000 && totalHarga < 50000):
+            diskon = 0.1 * totalHarga; // Diskon 10% untuk total harga antara 2000 - 4999
+            break;
+        case (totalHarga >= 50000):
+            diskon = 0.15 * totalHarga; // Diskon 15% untuk total harga 5000 ke atas
+            break;
+        default:
+            break;
+    }
+
+    // Mengurangkan diskon dari total harga pesanan
+    var totalSetelahDiskon = totalHarga - diskon;
+
+    // Mengonversi total harga pesanan ke format mata uang Rupiah
+    var totalSetelahDiskonFormat = totalSetelahDiskon.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
+
+   // Menampilkan total harga pesanan setelah diskon dalam format mata uang Rupiah
+    document.getElementById('totalHarga').innerHTML = totalSetelahDiskonFormat;
+
+
+    // Menampilkan pemberitahuan diskon
+    var pemberitahuanElem = document.getElementById("pemberitahuan");
+    pemberitahuanElem.textContent = "Anda mendapatkan diskon sebesar " + (diskon > 0 ? (diskon / totalHarga * 100).toFixed(2) + "%." : "totalHarga.");
+}
+
+    </script>
+</body>
+</html>
